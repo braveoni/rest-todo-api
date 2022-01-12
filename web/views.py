@@ -38,7 +38,8 @@ def user():
 def todo_list(task_id=None):
     if request.method == 'GET':
         data = db.session.query(Todo).filter_by(username=auth.current_user()).all()
-        return jsonify(tuple({key: value for key, value in zip(['id', 'task_name', 'task_status'], [row.id, row.task_name, row.task_status])} for row in data))
+        data = tuple({key: value for key, value in zip(['id', 'task_name', 'task_status'], [row.id, row.task_name, row.task_status])} for row in data)
+        return jsonify(*data)
 
     if request.method == 'POST':
         db.session.add(Todo(username=auth.current_user(), task_name=request.form['task_name']))
@@ -47,7 +48,6 @@ def todo_list(task_id=None):
     
     if request.method == 'PUT':
         if task_id:
-            print(request.form)
             record = db.session.query(Todo).filter_by(username=auth.current_user(), id=task_id).first()
             record.task_status = request.form['task_status']  == 'True'
             db.session.commit()
